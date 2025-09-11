@@ -1,8 +1,8 @@
 entrypoint = "README.md"
-modules = ["nix", "nodejs-22"]
+modules = ["nodejs-20"]
 
 [nix]
-channel = "stable-25_05"
+channel = "stable-24_05"
 
 [[ports]]
 localPort = 8081
@@ -12,12 +12,8 @@ externalPort = 80
 localPort = 8082
 externalPort = 3000
 
-[[ports]]
-localPort = 5000
-externalPort = 80
-
 [workflows]
-runButton = "Project"
+runButton = "Dev Server"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -58,27 +54,6 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx eas build --platform android --profile preview"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Expo Dev Server"
-
-[[workflows.workflow]]
-name = "Expo Dev Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./node_modules/.bin/expo start --web --port 5000"
-waitForPort = 5000
 
 [agent]
 expertMode = true
