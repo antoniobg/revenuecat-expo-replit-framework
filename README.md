@@ -20,9 +20,10 @@ For AI coding tools and automation guidance, see `AGENTS.md`.
 Start coding in minutes — this flow takes you from **first run to first subscription**.
 
 1. **Click the "Run" button** — everything is pre-configured!
-2. **Configure RevenueCat API keys** (optional for testing):
+2. **Configure RevenueCat Test Store** (recommended):
    - Edit `constants/RevenueCat.ts`
-   - Add your RevenueCat API keys from [app.revenuecat.com](https://app.revenuecat.com)
+   - Add your TEST API key from [app.revenuecat.com](https://app.revenuecat.com) (starts with `test_`)
+   - Works on **all platforms** (iOS, Android, Web) without store setup!
 3. **Start building** - Modify the existing screens or add new ones
 
 ## ⚡ What's Pre-Configured
@@ -33,16 +34,22 @@ Start coding in minutes — this flow takes you from **first run to first subscr
 - RevenueCat integration with demo mode for testing
 - Cross-platform navigation and UI components
 
-## 🧪 Testing Without API Keys
+## 🧪 Testing Your Subscriptions
 
-The app includes a demo mode that works without RevenueCat configuration:
+**🎯 Test Store (Recommended)**: The fastest way to test real subscriptions without connecting external stores!
+
+- **One API key** works on iOS, Android, and Web
+- **Real subscription testing** without Apple, Google, or Stripe setup
+- **Perfect for development** and prototyping
+- Add your `test_` API key in `constants/RevenueCat.ts`
+
+**Demo Mode**: The app also includes a demo mode that works without any configuration:
 
 - All screens and navigation work immediately
-- Demo subscription status and user interface
-- Paywall screens show without requiring real payment processing
-- Perfect for UI development and testing
+- Mock subscription status for UI development
+- No payment processing, just interface testing
 
-**Ready for production?** Add your RevenueCat API keys to enable real subscription processing.
+**Ready for production stores?** See the "Production Deployment" section below to connect real app stores.
 
 ## 🎯 What You Get
 
@@ -175,34 +182,37 @@ npx eas update --auto
 
 This is where your app becomes **monetizable**.
 
-### 1. Basic RevenueCat Setup (using Web Billing)
+### 1. 🧪 Test Store Setup (Start Here!)
 
-**Start here for immediate testing and development:**
+**The easiest way to test subscriptions - works on ALL platforms!**
 
 **Create RevenueCat Project:**
 1. Create a new project at [app.revenuecat.com](https://app.revenuecat.com/)
-2. Connect your Stripe account for web payments
-3. Add a **Web Billing** app in your project
-4. Configure **Entitlements** (e.g., "premium", "pro")
-5. Create **Offerings** and **Products** with pricing
+2. Configure **Entitlements** (e.g., "premium", "pro")
+3. Create **Offerings** and **Products** with test pricing
+4. Get your **Test API Key** from Project Settings → API Keys (starts with `test_`)
 
-**Configure API Keys:**
-Edit `constants/RevenueCat.ts` with your Web API key:
+**Configure Test Store:**
+Edit `constants/RevenueCat.ts` with your test API key:
 
 ```typescript
 export const REVENUECAT_CONFIG = {
-  IOS_API_KEY: 'appl_xxxxxxxxxx',        // Add later for iOS
-  ANDROID_API_KEY: 'goog_xxxxxxxxxx',    // Add later for Android
-  WEB_API_KEY: 'strp_xxxxxxxxxx',        // ← Start with this!
+  TEST_API_KEY: 'test_xxxxxxxxxx',       // ← Add your test key here!
   ENTITLEMENT_ID: 'premium',             // Match your entitlement
+  USE_TEST_STORE: true,                  // Keep true for development
+
+  // Production keys (add later)
+  IOS_API_KEY: 'appl_xxxxxxxxxx',
+  ANDROID_API_KEY: 'goog_xxxxxxxxxx',
+  WEB_API_KEY: 'rcb_xxxxxxxxxx',
 };
 ```
 
-**✅ You're ready to test!** The app will work immediately with web billing.
+**✅ You're ready to test!** The test store works immediately on iOS, Android, and Web without connecting any external payment systems.
 
-### 2. Mobile Store Integration (Optional)
+### 2. 🏪 Production Stores (When Ready to Launch)
 
-**Add when ready to publish to app stores:**
+**Add when ready to publish to actual app stores:**
 
 **iOS (App Store Connect):**
 - Create in-app purchase products in App Store Connect
@@ -219,6 +229,34 @@ export const REVENUECAT_CONFIG = {
 - Upload Google Play service account to RevenueCat
 - Add Android app to your RevenueCat project
 - Update `ANDROID_API_KEY` in your config
+
+**Web (via RevenueCat Web Billing):**
+- Connect your Stripe account to RevenueCat
+- Add a Web Billing app in your RevenueCat project
+- Update `WEB_API_KEY` in your config
+
+**Switch to Production:**
+Set `USE_TEST_STORE: false` in your config or use environment variable `REVENUECAT_USE_TEST_STORE=false`.
+
+### 🔄 Transitioning from Test Store to Production
+
+When you're ready to move from testing to real app store distribution:
+
+1. **Keep your test setup intact** - you can switch back anytime
+2. **Add production API keys** to your `constants/RevenueCat.ts`
+3. **Test the transition**:
+   ```bash
+   # Test with production stores
+   REVENUECAT_USE_TEST_STORE=false npx expo start
+
+   # Back to test store
+   REVENUECAT_USE_TEST_STORE=true npx expo start
+   ```
+4. **Deploy with production settings**:
+   - Set `REVENUECAT_USE_TEST_STORE=false` in your production environment
+   - Or update `USE_TEST_STORE: false` directly in the config
+
+**💡 Pro Tip**: The test store and production stores all use the same RevenueCat project - just different API key types. Your products, entitlements, and settings remain consistent across both.
 
 ## 🏗️ Project Structure
 
@@ -245,7 +283,7 @@ export const REVENUECAT_CONFIG = {
 
 ### Essential Files to Edit
 
-1. **`constants/RevenueCat.ts`** - Add your Web API key (start here!)
+1. **`constants/RevenueCat.ts`** - Add your Test API key (start here!)
 2. **`app.json`** - Update app name, bundle ID, and metadata
 3. **`app/(tabs)/index.tsx`** - Customize your home screen
 4. **`app/paywall.tsx`** - Design your subscription paywall
@@ -468,7 +506,7 @@ The app includes built-in debugging tools:
 ### RevenueCat Resources
 - [RevenueCat Docs](https://docs.revenuecat.com/) - Complete monetization guide
 - [React Native SDK](https://docs.revenuecat.com/docs/reactnative) - Platform integration
-- [Web Billing](https://www.revenuecat.com/docs/web/web-billing/overview) - Stripe integration
+- [Web Billing](https://www.revenuecat.com/docs/web/web-billing/overview) - Web Billing integration
 - [Testing Guide](https://docs.revenuecat.com/docs/sandbox) - Sandbox testing
 
 ### Community
@@ -528,6 +566,6 @@ This Developer Framework is provided as an open-source template. Use it freely f
 
 ---
 
-**Ready to monetize your app?** Configure your RevenueCat API keys in `constants/RevenueCat.ts` and start building! 🎉
+**Ready to monetize your app?** Add your RevenueCat Test API key in `constants/RevenueCat.ts` and start testing subscriptions immediately on all platforms! 🧪
 
 *Built by RevenueCat for Replit*

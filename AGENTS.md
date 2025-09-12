@@ -4,11 +4,11 @@ This file gives AI coding tools and agents concise, actionable guidance for work
 
 ## Goals
 - Ship a Replit Developer Framework template that runs immediately (demo mode) and scales to production with RevenueCat on iOS, Android, and Web.
-- Optimize for web billing first (Stripe via RevenueCat Web Billing), with optional native store setup later.
+- Optimize for test store first (works on all platforms without external store setup), with production store integration when ready to launch.
 
 ## Architecture Quick Facts
 - UI: React Native (Expo SDK 53), Expo Router (tabs: Home, Profile), TypeScript.
-- Monetization: RevenueCat (`react-native-purchases`), web billing enabled by default.
+- Monetization: RevenueCat (`react-native-purchases`), test store enabled by default for all platforms.
 - Provider: `components/RevenueCatProvider.tsx` wraps the app in `app/_layout.tsx`.
 - Hooks: `hooks/usePurchases.ts` (primary), `usePaywall`, `usePremiumStatus` helpers.
 - Styling: React Native StyleSheet + theme-aware components (`ThemedText`, `ThemedView`).
@@ -21,7 +21,10 @@ This file gives AI coding tools and agents concise, actionable guidance for work
 
 ## Configuration
 - Primary config: `constants/RevenueCat.ts`
-  - Env vars (preferred): `REVENUECAT_IOS_API_KEY`, `REVENUECAT_ANDROID_API_KEY`, `REVENUECAT_WEB_API_KEY`, `REVENUECAT_ENTITLEMENT_ID`.
+  - **Test Store (recommended)**: `REVENUECAT_TEST_API_KEY` (starts with `test_`), works on all platforms
+  - **Production stores**: `REVENUECAT_IOS_API_KEY`, `REVENUECAT_ANDROID_API_KEY`, `REVENUECAT_WEB_API_KEY`
+  - **Store mode**: `REVENUECAT_USE_TEST_STORE` (default: `true` for development)
+  - **Entitlement**: `REVENUECAT_ENTITLEMENT_ID` (default: `premium`)
   - Demo mode: If keys are missing, the provider initializes in demo mode (no purchases, UI flows only).
 - Do not hardcode secrets. Use Replit Secrets for production values.
 
@@ -46,8 +49,9 @@ This file gives AI coding tools and agents concise, actionable guidance for work
 ## Adding Features
 - New screen: create `app/feature-name.tsx` (or nested route dir), use `Themed*` components.
 - New tab: update `app/(tabs)/_layout.tsx` and add screen under `app/(tabs)/`.
-- Purchases: consume `usePurchases()` or `usePaywall()`; don’t access the SDK directly from screens.
+- Purchases: consume `usePurchases()` or `usePaywall()`; don't access the SDK directly from screens.
 - Config: extend `constants/RevenueCat.ts` for any new monetization flags.
+- Advanced SDK usage: See [react-native-purchases API reference](https://revenuecat.github.io/react-native-purchases-docs) for direct SDK methods.
 
 ## Testing
 - Web-first: Validate UI flows and demo mode in web.
@@ -69,6 +73,13 @@ This file gives AI coding tools and agents concise, actionable guidance for work
 ## Known Constraints
 - Replit is web‑first; iOS/Android native flows require local simulators or EAS build.
 - Some Replit environments do not follow filesystem symlinks for special files.
+
+## SDK References
+- [react-native-purchases SDK Documentation](https://docs.revenuecat.com/docs/reactnative) - Integration guide and setup
+- [react-native-purchases API Reference](https://revenuecat.github.io/react-native-purchases-docs) - Complete SDK reference with all classes and methods
+- [RevenueCat Test Store](https://docs.revenuecat.com/docs/test-store) - Test store setup and usage guide  
+- [RevenueCat Dashboard](https://app.revenuecat.com/) - Configure products, entitlements, and API keys
+- [Purchases API](https://docs.revenuecat.com/reference/api) - REST API for server-side integration
 
 ## Agent Notes
 - If you change port, update the start script and mention it in `replit.md`.

@@ -3,12 +3,16 @@
  *
  * This file contains all RevenueCat-related configuration constants.
  *
- * SETUP INSTRUCTIONS:
+ * 🚀 QUICK START WITH TEST STORE:
  * 1. Create a RevenueCat account at https://app.revenuecat.com/
  * 2. Create a new project in the RevenueCat dashboard
- * 3. Get your API keys from Project Settings > API keys
- * 4. Replace the placeholder values below with your actual API keys
- * 5. Configure your products and entitlements in the RevenueCat dashboard
+ * 3. Get your TEST API key from Project Settings > API keys (starts with "test_")
+ * 4. Replace the TEST_API_KEY below with your actual test API key
+ * 5. Configure your products, packages, and entitlements in the RevenueCat dashboard
+ * 6. Start testing immediately - no need to connect Apple, Google, or Stripe!
+ *
+ * The test store works on ALL platforms (iOS, Android, Web) without external store setup.
+ * Perfect for development, testing, and demos!
  *
  * SECURITY NOTE:
  * These API keys are safe to include in client-side code as they are
@@ -17,27 +21,41 @@
 
 export const REVENUECAT_CONFIG = {
   /**
-   * TODO: Replace with your RevenueCat API keys
+   * 🧪 TEST STORE API KEY (RECOMMENDED FOR GETTING STARTED)
+   * This single API key works for iOS, Android, and Web testing!
+   * Get your test API key from: https://app.revenuecat.com/projects/[your-project]/api-keys
+   * Look for the key that starts with "test_"
+   * 
+   * You can also set this using Replit Secrets: REVENUECAT_TEST_API_KEY
+   */
+  TEST_API_KEY: process.env.REVENUECAT_TEST_API_KEY || "test_your_api_key_here", // starts with "test_"
+
+  /**
+   * 🏪 PRODUCTION STORE API KEYS (FOR LIVE APP STORES)
+   * Only needed when you're ready to publish to actual app stores
    * Get these from: https://app.revenuecat.com/projects/[your-project]/api-keys
    *
    * You can also set these using Replit Secrets:
    * - REVENUECAT_IOS_API_KEY
    * - REVENUECAT_ANDROID_API_KEY
    * - REVENUECAT_WEB_API_KEY
-   * - REVENUECAT_ENTITLEMENT_ID
    */
-  IOS_API_KEY: process.env.REVENUECAT_IOS_API_KEY || "<your-ios-api-key>", // e.g., 'appl_abcdef1234567890'
-  ANDROID_API_KEY:
-    process.env.REVENUECAT_ANDROID_API_KEY || "<your-android-api-key>", // e.g., 'goog_abcdef1234567890'
-  WEB_API_KEY:
-    process.env.REVENUECAT_WEB_API_KEY || "<your-web-billing-api-key>", // e.g., 'rcb_abcdef1234567890'
+  IOS_API_KEY: process.env.REVENUECAT_IOS_API_KEY || "appl_your_ios_key_here", // starts with "appl_"
+  ANDROID_API_KEY: process.env.REVENUECAT_ANDROID_API_KEY || "goog_your_android_key_here", // starts with "goog_"
+  WEB_API_KEY: process.env.REVENUECAT_WEB_API_KEY || "rcb_your_web_key_here", // starts with "rcb_"
 
   /**
-   * TODO: Replace with your entitlement identifier
+   * Configure your entitlement identifier
+   * This should match the entitlement identifier you create in the RevenueCat dashboard
    * Configure entitlements in RevenueCat Dashboard > Entitlements
-   * This should match the entitlement identifier you create in the dashboard
    */
   ENTITLEMENT_ID: process.env.REVENUECAT_ENTITLEMENT_ID || "premium", // Common examples: 'premium', 'pro', 'all_access'
+
+  /**
+   * Enable test store mode (recommended for development)
+   * Set to true to use the test store, false to use production stores
+   */
+  USE_TEST_STORE: process.env.REVENUECAT_USE_TEST_STORE !== "false", // Default: true for development
 
   /**
    * Optional: Enable debug mode for development
@@ -60,6 +78,12 @@ export const REVENUECAT_CONFIG = {
 import { Platform } from "react-native";
 
 export const getPlatformApiKey = (): string => {
+  // Use test store API key if enabled (works on all platforms!)
+  if (REVENUECAT_CONFIG.USE_TEST_STORE) {
+    return REVENUECAT_CONFIG.TEST_API_KEY;
+  }
+
+  // Use platform-specific production API keys
   switch (Platform.OS) {
     case "ios":
       return REVENUECAT_CONFIG.IOS_API_KEY;
@@ -83,17 +107,30 @@ export const validateRevenueCatConfig = (): boolean => {
   const apiKey = getPlatformApiKey();
 
   if (!apiKey || apiKey.includes("your_") || apiKey.includes("_here")) {
-    console.error(
-      "⚠️ RevenueCat API key not configured for platform:",
-      Platform.OS
-    );
-    console.error(
-      "Please update constants/RevenueCat.ts with your actual API keys"
-    );
-    console.error(
-      "Get your API keys from: https://app.revenuecat.com/projects/[your-project]/api-keys"
-    );
+    if (REVENUECAT_CONFIG.USE_TEST_STORE) {
+      console.error("🧪 RevenueCat TEST API key not configured!");
+      console.error("Please update constants/RevenueCat.ts with your test API key");
+      console.error("Get your test API key (starts with 'test_') from:");
+      console.error("https://app.revenuecat.com/projects/[your-project]/api-keys");
+    } else {
+      console.error(
+        "⚠️ RevenueCat production API key not configured for platform:",
+        Platform.OS
+      );
+      console.error(
+        "Please update constants/RevenueCat.ts with your production API keys"
+      );
+      console.error(
+        "Get your API keys from: https://app.revenuecat.com/projects/[your-project]/api-keys"
+      );
+    }
     return false;
+  }
+
+  // Check if API key format is correct
+  if (REVENUECAT_CONFIG.USE_TEST_STORE && !apiKey.startsWith("test_")) {
+    console.warn("⚠️ Test store is enabled but API key doesn't start with 'test_'");
+    console.warn("Make sure you're using a test API key for development");
   }
 
   if (
@@ -103,6 +140,13 @@ export const validateRevenueCatConfig = (): boolean => {
     console.warn(
       "⚠️ Using default entitlement ID. Consider updating to match your RevenueCat configuration."
     );
+  }
+
+  // Log current mode for clarity
+  if (REVENUECAT_CONFIG.USE_TEST_STORE) {
+    console.log("🧪 Running in TEST STORE mode - perfect for development!");
+  } else {
+    console.log("🏪 Running in PRODUCTION STORE mode");
   }
 
   return true;
